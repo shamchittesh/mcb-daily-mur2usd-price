@@ -1,4 +1,5 @@
 pandas
 numpy
 datetime
-beautifulsoup
+bs4
+requests
