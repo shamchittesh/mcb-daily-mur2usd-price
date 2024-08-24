@@ -1,3 +1,12 @@
 # mcb-daily-mur2usd-price
-Tracks MCB daily MUR to USD conversion price anomalies.
-and the trading price varies lower than the standard deviation it will push a notification to a telegram channel
+Tracks MCB daily MUR to USD trading price movement's standard deviation and push notifications to a telegram channel.
+
+- Python -m venv .venv
+- source ./bin/activate
+- python3 -m pip install -r requirements.txt
+
+# Goals
+- Find a way to get the rates from https://mcb.mu/tools-calculators/download-daily-rates
+- Calculate the standard deviation for the price action
+- Trigger a test notifications to telegram
+- Find a suitable SD value and factor it in the code
