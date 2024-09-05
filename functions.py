@@ -24,3 +24,13 @@ def download_forex_data(startdate, enddate, currency, basecurrency, filename="fo
             print(f"Failed to download file. Status code: {response.status_code}")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+def find_column(df):
+    # Find the column containing both 'SELLING' and 'TT'
+    column_with_selling_tt = None
+    for col in df.columns:
+        if "SELLING" in df[col].values and "TT" in df[col].values:
+            column_with_selling_tt = col
+            break
+    return column_with_selling_tt
+    

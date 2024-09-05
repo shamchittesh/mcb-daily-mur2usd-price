@@ -2,18 +2,23 @@ from modules import *
 
 today = datetime.today().strftime('%Y-%m-%d')
 lastmonth = datetime.today() - timedelta(days=30)
-# functions.download_forex_data(lastmonth, today, "USD", "MUR")
+
+functions.download_forex_data(lastmonth,today, "USD", "MUR")
 
 df = pd.read_excel('forex_data.xlsx', index_col=None, header=None)  
-
+print(df)
 # If today's rate is added to the data, proceed.. else exit(0)
+# functions.checkifrateistoday()
 
-# Find the index where "SELLING" appears
-selling_row_idx = df[df.isin(['SELLING']).any(axis=1)].index[0]
+column_with_selling_tt=functions.find_column(df)
 
-# Find the column index where "TT" appears in the same row as "SELLING"
-tt_column_idx = df.iloc[selling_row_idx][df.iloc[selling_row_idx] == 'TT'].index[0]
+# Check if the column was found
+if column_with_selling_tt is not None:
+    # Find the mean of the numeric values in the found column
+    numeric_values = pd.to_numeric(df[column_with_selling_tt], errors='coerce')
+    print(numeric_values)
+    mean_value = numeric_values.mean()
+    print(f"Mean of the values in the column with 'SELLING' and 'TT': {mean_value}")
+else:
+    print("No rates column found.")
 
-# Select the column with numerical values under "TT" and "SELLING" and add them to an array
-
-# calculate mean
