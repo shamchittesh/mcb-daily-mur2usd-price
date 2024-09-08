@@ -1,4 +1,4 @@
-from modules import *
+import pandas as pd
 
 def download_forex_data(startdate, enddate, currency, basecurrency, filename="forex_data.xlsx"):
     # Define the URL and the payload with user inputs
@@ -33,4 +33,33 @@ def find_column(df):
             column_with_selling_tt = col
             break
     return column_with_selling_tt
-    
+
+def get_mean(df,column_with_selling_tt):
+    # Check if the column was found
+    if column_with_selling_tt is not None:
+        # Find the mean of the numeric values in the found column
+        numeric_values = pd.to_numeric(df[column_with_selling_tt], errors='coerce')
+        print(numeric_values)
+        mean_value = numeric_values.mean()
+        print(f"Mean of the values in the column with 'SELLING' and 'TT': {mean_value}")
+    else:
+        print("No rates column found.")
+
+def get_lastprice(df,column_with_selling_tt):
+    # Check if the column was found
+    if column_with_selling_tt is not None:
+        # Find the mean of the numeric values in the found column
+        numeric_values = pd.to_numeric(df[column_with_selling_tt], errors='coerce')
+        # Drop NaN values from the numeric values series
+        print(numeric_values)
+        cleaned_numeric_values = numeric_values.dropna()
+
+        print(cleaned_numeric_values)
+        last_numeric_value = cleaned_numeric_values.iloc[-1]
+        print(f"Last Price: {last_numeric_value}")
+    else:
+        print("No rates column found.")
+
+
+# def isdeviation(lastprice,mean,pct):
+#     if 

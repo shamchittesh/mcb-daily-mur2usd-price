@@ -1,5 +1,17 @@
 from modules import *
 
+USD1 = 46.66
+USD2 = USD1-2
+
+Amount = 500000
+USD1TR = 500000/USD1
+USD2TR = 500000/USD2
+
+diff = USD2TR - USD1TR
+diff_mru = diff*USD2
+print(f'amountUSD {USD2TR}')
+print(f'diffusd = {diff} / diffmur =  {diff_mru}')
+
 today = datetime.today().strftime('%Y-%m-%d')
 lastmonth = datetime.today() - timedelta(days=30)
 
@@ -10,15 +22,11 @@ print(df)
 # If today's rate is added to the data, proceed.. else exit(0)
 # functions.checkifrateistoday()
 
+
 column_with_selling_tt=functions.find_column(df)
+lastprice = functions.get_lastprice(df,column_with_selling_tt)
+mean=functions.get_mean(df,column_with_selling_tt)
 
-# Check if the column was found
-if column_with_selling_tt is not None:
-    # Find the mean of the numeric values in the found column
-    numeric_values = pd.to_numeric(df[column_with_selling_tt], errors='coerce')
-    print(numeric_values)
-    mean_value = numeric_values.mean()
-    print(f"Mean of the values in the column with 'SELLING' and 'TT': {mean_value}")
-else:
-    print("No rates column found.")
-
+# is2pct = functions.isdeviation(mean,2)
+# is5pct = functions.isdeviation(mean,5)
+# is10pct = functions.isdeviation(mean,10)
