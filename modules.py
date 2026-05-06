@@ -1,5 +1,10 @@
+import os
 import requests
-import functions
-from datetime import datetime, timedelta
+import numpy as np
 import pandas as pd
-import openpyxl
+from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+import functions
+
+load_dotenv()

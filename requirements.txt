@@ -1,6 +1,6 @@
 pandas
 numpy
-datetime
-bs4
 requests
 openpyxl
+python-dotenv
+python-telegram-bot
