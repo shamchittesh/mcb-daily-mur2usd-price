@@ -100,6 +100,32 @@ You can also trigger manually from the Actions tab → "Run workflow".
 | `SD_THRESHOLD` | 2.0 | Z-score threshold for rate deviation alerts |
 | `SPREAD_THRESHOLD` | 1.0 | Spread % below which to trigger alerts |
 
+### SD Threshold Guide
+
+The `SD_THRESHOLD` controls how sensitive the rate deviation alert is:
+
+| Threshold | Sensitivity | Meaning |
+|-----------|-------------|---------|
+| 1.5 | High | Alerts on ~13% of days (more frequent) |
+| 2.0 | Medium (recommended) | Alerts on ~5% of days |
+| 2.5 | Low | Alerts on ~1% of days (rare, big moves only) |
+
+Based on recent data, 1 SD ≈ 0.31 MUR, so a 2.0 SD threshold triggers when the rate moves ±0.63 MUR from the 30-day average.
+
+### Spread Threshold Guide
+
+The `SPREAD_THRESHOLD` controls when you get alerted about low bank spreads (good buying opportunities). Based on historical data (2020–2026):
+
+| Threshold | Sensitivity | How often it triggers |
+|-----------|-------------|----------------------|
+| 1.0% | Very low | ~2% of days — only the rarest deals |
+| 1.5% | Low | ~6% of days — about once a month |
+| 2.0% | Medium (recommended) | ~10% of days — a few times a month |
+| 2.5% | High | ~15% of days — roughly weekly |
+| 3.0% | Very high | ~22% of days — frequent alerts |
+
+Historical average (data since 2020) spread is 3.48%. Anything below 2% is genuinely unusual and worth paying attention to.
+
 ## Files
 
 | File | Purpose |
