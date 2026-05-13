@@ -68,7 +68,7 @@ def main():
         spread_pct = functions.calculate_spread(last_price, market_rate)
         if spread_pct is not None and spread_pct < spread_threshold:
             print(f"    LOW SPREAD ALERT: {spread_pct:.2f}% — sending notification...")
-            functions.send_spread_alert(last_price, market_rate, spread_pct)
+            functions.send_spread_alert(last_price, market_rate, spread_pct, spread_threshold)
         else:
             print(f"    Spread is {spread_pct:.2f}% (above {spread_threshold}% threshold). No alert.")
     else:

@@ -180,14 +180,14 @@ def calculate_spread(mcb_selling_tt, market_rate):
     return spread_pct
 
 
-def send_spread_alert(mcb_rate, market_rate, spread_pct):
+def send_spread_alert(mcb_rate, market_rate, spread_pct, spread_threshold):
     """Send a Telegram alert when spread is below threshold."""
     message = (
         f"💰 *Low Spread Alert - USD/MUR*\n\n"
         f"*MCB Selling TT:* {mcb_rate:.2f} MUR\n"
         f"*Market Rate:* {market_rate:.4f} MUR\n"
         f"*Bank Spread:* {spread_pct:.2f}%\n\n"
-        f"Spread is below 1% — good time to buy USD!"
+        f"Spread is below {spread_threshold}% — good time to buy USD!"
     )
     return send_telegram_message(message)
 
