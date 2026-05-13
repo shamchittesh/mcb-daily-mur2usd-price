@@ -48,31 +48,38 @@ def main():
         print("Could not calculate statistics. Exiting.")
         return
 
-    # --- Step 3: Check deviation ---
+    # --- Step 3: Check deviation and fetch market rate ---
     print("\n[3] Checking for significant deviation...")
     is_deviated, z_score, direction = functions.check_deviation(last_price, mean, std, sd_threshold)
-
-    if is_deviated:
-        print(f"\n    ALERT: Rate has deviated beyond {sd_threshold} SD! Sending Telegram notification...")
-        functions.send_alert(last_price, mean, std, z_score, direction, sd_threshold)
-    else:
-        print(f"    Rate is within normal range (±{sd_threshold} SD). No alert needed.")
-        print(f"    Current: {last_price:.2f} | Mean: {mean:.4f} | Z-Score: {z_score:.2f}")
 
     # --- Step 4: Check bank spread ---
     spread_threshold = float(os.getenv("SPREAD_THRESHOLD", "1.0"))
     print(f"\n[4] Checking bank spread (threshold: <{spread_threshold}%)...")
 
     market_rate = functions.get_market_rate()
+    spread_pct = None
     if market_rate:
         spread_pct = functions.calculate_spread(last_price, market_rate)
-        if spread_pct is not None and spread_pct < spread_threshold:
-            print(f"    LOW SPREAD ALERT: {spread_pct:.2f}% — sending notification...")
-            functions.send_spread_alert(last_price, market_rate, spread_pct, spread_threshold)
-        else:
-            print(f"    Spread is {spread_pct:.2f}% (above {spread_threshold}% threshold). No alert.")
     else:
         print("    Could not fetch market rate. Skipping spread check.")
+
+    # --- Step 5: Send alerts ---
+    print("\n[5] Sending alerts if needed...")
+
+    if is_deviated:
+        print(f"    ALERT: Rate has deviated beyond {sd_threshold} SD! Sending Telegram notification...")
+        functions.send_alert(last_price, mean, std, z_score, direction, sd_threshold, spread_pct, market_rate)
+    else:
+        print(f"    Rate is within normal range (±{sd_threshold} SD). No alert needed.")
+        print(f"    Current: {last_price:.2f} | Mean: {mean:.4f} | Z-Score: {z_score:.2f}")
+
+    if spread_pct is not None and spread_pct < spread_threshold:
+        print(f"    LOW SPREAD ALERT: {spread_pct:.2f}% — sending notification...")
+        print(f"    {functions.interpret_spread(spread_pct)}")
+        functions.send_spread_alert(last_price, market_rate, spread_pct, spread_threshold, mean, std, z_score, direction)
+    elif spread_pct is not None:
+        print(f"    Spread is {spread_pct:.2f}% (above {spread_threshold}% threshold). No alert.")
+        print(f"    {functions.interpret_spread(spread_pct)}")
 
     print("\n" + "=" * 60)
     print("Done.")

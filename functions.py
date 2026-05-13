@@ -117,7 +117,53 @@ def check_deviation(last_price, mean, std, threshold=2.0):
     return is_deviated, z_score, direction
 
 
-def send_telegram_message(message):
+def interpret_zscore(z_score):
+    """Return a human-readable interpretation of how rare this move is."""
+    abs_z = abs(z_score)
+    if abs_z < 0.5:
+        return "🟢 Very common (happens most days)"
+    elif abs_z < 1.0:
+        return "🟢 Normal (happens ~1 in 3 days)"
+    elif abs_z < 1.5:
+        return "🟡 Uncommon (happens ~1 in 7 days)"
+    elif abs_z < 2.0:
+        return "🟠 Unusual (happens ~1 in 20 days)"
+    elif abs_z < 2.5:
+        return "🔴 Rare (happens ~1 in 2 months)"
+    elif abs_z < 3.0:
+        return "🔴 Very rare (happens ~1 in 6 months)"
+    else:
+        return "⚫ Extremely rare (happens <1 in a year)"
+
+
+def interpret_spread(spread_pct):
+    """
+    Return a human-readable interpretation of how rare this spread is,
+    based on historical MCB spread data (2020-2026, ~1765 data points).
+    Historical: mean=3.48%, median=3.63%, std=0.97%
+    """
+    if spread_pct < 0.5:
+        return "⚫ Unicorn (<0.1% of days since 2020)"
+    elif spread_pct < 1.0:
+        return "🔴 Extremely rare (~2% of days since 2020)"
+    elif spread_pct < 1.5:
+        return "🔴 Very rare (~6% of days since 2020)"
+    elif spread_pct < 2.0:
+        return "🟠 Rare (~10% of days since 2020)"
+    elif spread_pct < 2.5:
+        return "🟡 Uncommon (~15% of days since 2020)"
+    elif spread_pct < 3.0:
+        return "🟡 Below average (~22% of days since 2020)"
+    elif spread_pct < 3.5:
+        return "🟢 Normal — lower half (~46% of days)"
+    elif spread_pct < 4.0:
+        return "🟢 Normal — typical spread (~72% of days)"
+    elif spread_pct < 4.5:
+        return "🟢 Above average (~91% of days)"
+    else:
+        return "📈 High spread (top 10% of days)"
+
+
     """Send a message via Telegram Bot API."""
     bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
@@ -180,13 +226,21 @@ def calculate_spread(mcb_selling_tt, market_rate):
     return spread_pct
 
 
-def send_spread_alert(mcb_rate, market_rate, spread_pct, spread_threshold):
+def send_spread_alert(mcb_rate, market_rate, spread_pct, spread_threshold, mean, std, z_score, direction):
     """Send a Telegram alert when spread is below threshold."""
+    rarity = interpret_zscore(z_score)
+    spread_rarity = interpret_spread(spread_pct)
     message = (
         f"💰 *Low Spread Alert - USD/MUR*\n\n"
         f"*MCB Selling TT:* {mcb_rate:.2f} MUR\n"
         f"*Market Rate:* {market_rate:.4f} MUR\n"
-        f"*Bank Spread:* {spread_pct:.2f}%\n\n"
+        f"*Bank Spread:* {spread_pct:.2f}%\n"
+        f"{spread_rarity}\n\n"
+        f"📊 *Price vs 30-Day Average:*\n"
+        f"*Mean:* {mean:.4f} | *Std Dev:* {std:.4f}\n"
+        f"*Z-Score:* {z_score:.2f} ({direction} mean)\n"
+        f"The rate has moved *{abs(z_score):.2f} standard deviations* {direction} the 30-day average.\n"
+        f"{rarity}\n\n"
         f"Spread is below {spread_threshold}% — good time to buy USD!"
     )
     return send_telegram_message(message)
@@ -204,9 +258,10 @@ def send_test_notification():
     return send_telegram_message(message)
 
 
-def send_alert(last_price, mean, std, z_score, direction, threshold):
+def send_alert(last_price, mean, std, z_score, direction, threshold, spread_pct=None, market_rate=None):
     """Send a forex alert notification via Telegram."""
     emoji = "📈" if direction == "above" else "📉"
+    rarity = interpret_zscore(z_score)
     message = (
         f"{emoji} *USD/MUR Rate Alert*\n\n"
         f"*Current Rate:* {last_price:.2f} MUR\n"
@@ -214,6 +269,17 @@ def send_alert(last_price, mean, std, z_score, direction, threshold):
         f"*Std Deviation:* {std:.4f}\n"
         f"*Z-Score:* {z_score:.2f} ({direction} mean)\n"
         f"*Threshold:* ±{threshold} SD\n\n"
-        f"The rate has moved *{abs(z_score):.2f} standard deviations* {direction} the 30-day average."
+    )
+    if spread_pct is not None and market_rate is not None:
+        spread_rarity = interpret_spread(spread_pct)
+        message += (
+            f"💱 *Bank Spread:*\n"
+            f"*Market Rate:* {market_rate:.4f} MUR\n"
+            f"*Spread:* {spread_pct:.2f}%\n"
+            f"{spread_rarity}\n\n"
+        )
+    message += (
+        f"The rate has moved *{abs(z_score):.2f} standard deviations* {direction} the 30-day average.\n"
+        f"{rarity}"
     )
     return send_telegram_message(message)
