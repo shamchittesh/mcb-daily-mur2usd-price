@@ -150,12 +150,56 @@ def send_telegram_message(message):
         return False
 
 
+def get_market_rate():
+    """Fetch the current mid-market USD/MUR rate from a free API."""
+    url = "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            rate = data.get("usd", {}).get("mur")
+            if rate:
+                print(f"Market Rate (USD/MUR): {rate:.4f}")
+                return float(rate)
+        print(f"Failed to fetch market rate. Status: {response.status_code}")
+        return None
+    except Exception as e:
+        print(f"Error fetching market rate: {e}")
+        return None
+
+
+def calculate_spread(mcb_selling_tt, market_rate):
+    """
+    Calculate the bank spread percentage.
+    Spread = (MCB Selling TT - Market Rate) / Market Rate * 100
+    """
+    if market_rate is None or market_rate == 0:
+        return None
+    spread_pct = (mcb_selling_tt - market_rate) / market_rate * 100
+    print(f"Spread: {spread_pct:.4f}% (MCB: {mcb_selling_tt:.2f} vs Market: {market_rate:.4f})")
+    return spread_pct
+
+
+def send_spread_alert(mcb_rate, market_rate, spread_pct):
+    """Send a Telegram alert when spread is below threshold."""
+    message = (
+        f"💰 *Low Spread Alert - USD/MUR*\n\n"
+        f"*MCB Selling TT:* {mcb_rate:.2f} MUR\n"
+        f"*Market Rate:* {market_rate:.4f} MUR\n"
+        f"*Bank Spread:* {spread_pct:.2f}%\n\n"
+        f"Spread is below 1% — good time to buy USD!"
+    )
+    return send_telegram_message(message)
+
+
 def send_test_notification():
     """Send a test notification to verify Telegram setup."""
     message = (
         "🧪 *Test Notification*\n\n"
         "MCB USD/MUR Forex Monitor is working!\n"
-        "You will receive alerts when the exchange rate deviates significantly."
+        "You will receive alerts when:\n"
+        "• Rate deviates significantly from 30-day average\n"
+        "• Bank spread drops below 1%"
     )
     return send_telegram_message(message)
 

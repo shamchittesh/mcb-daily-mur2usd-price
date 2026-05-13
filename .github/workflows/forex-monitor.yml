@@ -27,4 +27,5 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SD_THRESHOLD: ${{ vars.SD_THRESHOLD || '2.0' }}
+          SPREAD_THRESHOLD: ${{ vars.SPREAD_THRESHOLD || '1.0' }}
         run: python main.py
