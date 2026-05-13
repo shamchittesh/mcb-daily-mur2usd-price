@@ -226,6 +226,39 @@ def calculate_spread(mcb_selling_tt, market_rate):
     return spread_pct
 
 
+def send_telegram_message(message):
+    """Send a message via Telegram Bot API."""
+    bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+
+    if not bot_token or bot_token == "your_bot_token_here":
+        print("ERROR: TELEGRAM_BOT_TOKEN not configured in .env")
+        return False
+    if not chat_id or chat_id == "your_chat_id_here":
+        print("ERROR: TELEGRAM_CHAT_ID not configured in .env")
+        return False
+
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": message,
+        "parse_mode": "Markdown"
+    }
+
+    try:
+        response = requests.post(url, json=payload)
+        if response.status_code == 200:
+            print("Telegram message sent successfully!")
+            return True
+        else:
+            print(f"Failed to send Telegram message. Status: {response.status_code}")
+            print(f"Response: {response.text}")
+            return False
+    except Exception as e:
+        print(f"Error sending Telegram message: {e}")
+        return False
+
+
 def send_spread_alert(mcb_rate, market_rate, spread_pct, spread_threshold, mean, std, z_score, direction):
     """Send a Telegram alert when spread is below threshold."""
     rarity = interpret_zscore(z_score)
