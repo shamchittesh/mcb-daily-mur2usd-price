@@ -265,6 +265,8 @@ def send_spread_alert(mcb_rate, market_rate, spread_pct, spread_threshold, mean,
     spread_rarity = interpret_spread(spread_pct)
     message = (
         f"💰 *Low Spread Alert - USD/MUR*\n\n"
+
+        f"Spread is below {spread_threshold}%!\n"
         f"*MCB Selling TT:* {mcb_rate:.2f} MUR\n"
         f"*Market Rate:* {market_rate:.4f} MUR\n"
         f"*Bank Spread:* {spread_pct:.2f}%\n"
@@ -274,7 +276,6 @@ def send_spread_alert(mcb_rate, market_rate, spread_pct, spread_threshold, mean,
         f"*Z-Score:* {z_score:.2f} ({direction} mean)\n"
         f"The rate has moved *{abs(z_score):.2f} standard deviations* {direction} the 30-day average.\n"
         f"{rarity}\n\n"
-        f"Spread is below {spread_threshold}% — good time to buy USD!"
     )
     return send_telegram_message(message)
 
